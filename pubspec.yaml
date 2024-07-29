@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter_svg: ^2.0.10+1
   curved_navigation_bar: ^1.0.6 #latest version
+  speech_to_text: ^5.2.1
+  intl: ^0.19.0
+  flutter_slidable: ^3.1.1
   flutter:
     sdk: flutter
 
