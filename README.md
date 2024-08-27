@@ -14,7 +14,7 @@ My design on Figma: https://www.figma.com/design/kbRl3s3ZQO6rJBXsLhMgaN/TTTN?nod
 
 Here are some images of the interface upon completion.
 
-<img src="https://github.com/user-attachments/assets/4d22a011-738d-4b62-a7c6-a6fb14a2e6ae" width="210" height="400">
+<img src="https://github.com/user-attachments/assets/4d22a011-738d-4b62-a7c6-a6fb14a2e6ae" width="200" height="400">
 <img src="https://github.com/user-attachments/assets/7a31c05f-55c0-4aeb-a43c-32dbb34fd50c" width="210" height="400">
 <img src="https://github.com/user-attachments/assets/a2b33153-a2fc-4647-997c-b0dae4da680d" width="210" height="400">
 <img src="https://github.com/user-attachments/assets/9b07f230-f31d-4ce7-89d2-884a131e3426" width="210" height="400">
