@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/491ac4a3-d36c-4b18-b526-c958dc9ec19b)# emodiary
+# emodiary
 
 A new Flutter project.
 
