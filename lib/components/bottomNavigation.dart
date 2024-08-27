@@ -7,7 +7,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class bottomNavigation extends StatefulWidget {
-  const bottomNavigation({super.key});
+  final int select;
+  const bottomNavigation({super.key, this.select = 0 });
 
   @override
   State<bottomNavigation> createState() => _bottomNavigationState();
@@ -16,7 +17,13 @@ class bottomNavigation extends StatefulWidget {
 class _bottomNavigationState extends State<bottomNavigation> {
 
   List screens = [const home(),const chart(),const notice(),const profile()];
-  int _selectedIndex = 0; // State variable to keep track of the selected index
+  late int _selectedIndex; // State variable to keep track of the selected index
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.select;
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -40,6 +47,7 @@ class _bottomNavigationState extends State<bottomNavigation> {
             _buildNavItem(2, "assets/notice.svg", "assets/notice.svg"),
             _buildNavItem(3, "assets/profile.svg", "assets/profile.svg"),
           ],
+          index: _selectedIndex,
           onTap: _onItemTapped,
         ),
       ),

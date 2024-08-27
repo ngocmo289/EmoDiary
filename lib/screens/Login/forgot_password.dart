@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:emodiary/components/btn_login.dart';
 import 'package:emodiary/components/edt_text.dart';
 import 'package:emodiary/components/intro_bgr.dart';
+import 'package:emodiary/config.dart';
 import 'package:emodiary/screens/Login/verification_code.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart'as http;
+import 'package:quickalert/quickalert.dart';
 
 const Color brow = Color(0xffdeb887);
 
@@ -15,13 +20,51 @@ class forgot_password extends StatefulWidget {
 
 class _forgot_passwordState extends State<forgot_password> {
   final email_reset_pass = TextEditingController();
+  bool _isEmailEmty = false;
 
   void cancel() {
     Navigator.pop(context);
   }
 
-  void reset() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const verificationCode(data: 0)));
+  void reset() async{
+
+    if(email_reset_pass.text.isNotEmpty){
+      var regBody ={
+        "email" : email_reset_pass.text
+      };
+
+      var respone = await http.post(Uri.parse(forgot_pass),
+          headers: {"Content-Type":"application/json"},
+          body: jsonEncode(regBody)
+      );
+
+      var jsonRespone = jsonDecode(respone.body);
+
+      print(jsonRespone['success']);
+
+      if(jsonRespone['status']){
+        // Hiển thị QuickAlert Loading
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.loading,
+          title: 'Please wait',
+          text: 'Verification Email...',
+          barrierDismissible: false,
+        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => verificationCode(data: 0, email: email_reset_pass.text)));
+      }else {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Oops...',
+          text: 'Sorry, Email not exists, Try sign in',
+        );
+      }
+    }else{
+      setState(() {
+        email_reset_pass.text.isEmpty ? _isEmailEmty = true : _isEmailEmty = false;
+      });
+    }
   }
 
   @override
@@ -48,7 +91,7 @@ class _forgot_passwordState extends State<forgot_password> {
                     textAlign: TextAlign.left,
                     style: TextStyle(fontSize: 15),
                   ),
-                  edt_text(controller: email_reset_pass, obscureText: false),
+                  edt_text(controller: email_reset_pass, obscureText: false, errors: _isEmailEmty,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

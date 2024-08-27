@@ -1,6 +1,21 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:emodiary/components/after_bgr.dart';
 import 'package:emodiary/components/btn_manager_diary.dart';
+import 'package:emodiary/screens/ManagerDiary/month_diary.dart';
+import 'package:emodiary/screens/ManagerDiary/view_detail.dart';
+import 'package:emodiary/screens/ManagerDiary/view_list.dart';
+import 'package:emodiary/screens/ManagerDiary/write_diary.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import '../../config.dart';
+import '../../provider/noticeProvider.dart';
+import '../../provider/userProvider.dart';
+import 'favorite_list.dart';
 
 const List<String> MONTHS = [
   "January",
@@ -34,16 +49,153 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  String name = "mer";
+  String imgAvt = "";
+  String name = "";
   String date = weekdayName[DateTime.now().weekday - 1].toString();
   String day = DateTime.now().day.toString();
   String month = MONTHS[DateTime.now().month - 1];
   String year = DateTime.now().year.toString();
+  @override
+  void initState() {
+    super.initState();
+    _requestNotificationPermission();
+  }
 
-  void write() {}
+  Future<void> _requestNotificationPermission() async {
+    bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+    if (!isAllowed) {
+      isAllowed =
+          await AwesomeNotifications().requestPermissionToSendNotifications();
+      if (!isAllowed) {
+        print("Người dùng không cho phép hiển thị thông báo");
+      }
+    }
+  }
+
+  void write() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const write_diary()));
+  }
+
+  void view() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const view_list()));
+  }
+
+  void favorite() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const favorite_list()));
+  }
+
+  void monthdiary() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const month_diary()));
+  }
+
+  String titleNotice = "";
+  String desNotice = "";
+
+  void triggerNotification() async {
+    print("title: " + titleNotice);
+    if (titleNotice.isNotEmpty && desNotice.isNotEmpty) {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+            id: 10,
+            channelKey: 'EmoDiary',
+            title: titleNotice,
+            body: desNotice,
+            largeIcon: 'assets/logo2.png' // Bật hiển thị logo
+            ),
+      );
+    }
+  }
+
+  void checkHPBD() async {
+    final userProvider = Provider.of<UserProvider>(context);
+    final noticeProvider = Provider.of<NoticeProvider>(context);
+    final requestBody = {
+      'datenow': DateFormat('d/M/yyyy').format(DateTime.now()),
+      'userIdd': userProvider.user!.id,
+      'time': DateFormat('HH:mm').format(DateTime.now())
+    };
+
+    try {
+      // Send the update to the server
+      final response = await http.post(
+        Uri.parse(checkNoticeHPBD), // Replace with your server endpoint
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+      //print(response.body);
+      if (response.statusCode == 201) {
+        final jsonResponse = jsonDecode(response.body);
+        // Ensure the response contains the 'newNoticee' key
+        if (jsonResponse.containsKey('newNoticee')) {
+          Notice noticeGet = Notice.fromJson(jsonResponse['newNoticee']);
+          print('Success message: ${jsonResponse['success']}');
+          //print('Notice title: ${noticeGet.title}');
+
+          setState(() {
+            noticeProvider.setNotice(noticeGet);
+            titleNotice = noticeGet.title;
+            desNotice = noticeGet.des;
+          });
+          triggerNotification();
+        }
+      } else {
+        print(jsonDecode(response.body)['massage']);
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void checkMemori() async {
+    final userProvider = Provider.of<UserProvider>(context);
+    final noticeProvider = Provider.of<NoticeProvider>(context);
+    final requestBody = {
+      'datenow': DateFormat('d/M/yyyy').format(DateTime.now()),
+      'userIdd': userProvider.user!.id,
+      'time': DateFormat('HH:mm').format(DateTime.now())
+    };
+
+    try {
+      // Send the update to the server
+      final response = await http.post(
+        Uri.parse(checkNoticeMemori), // Replace with your server endpoint
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+      //print(response.body);
+      if (response.statusCode == 201) {
+        final jsonResponse = jsonDecode(response.body);
+        // Ensure the response contains the 'newNoticee' key
+        if (jsonResponse.containsKey('newNoticee')) {
+          Notice noticeGet = Notice.fromJson(jsonResponse['newNoticee']);
+          print('Success message: ${jsonResponse['success']}');
+          //print('Notice title: ${noticeGet.title}');
+          setState(() {
+            noticeProvider.setNotice(noticeGet);
+            titleNotice = noticeGet.title;
+            desNotice = noticeGet.des;
+          });
+          triggerNotification();
+        }
+      } else {
+        print(jsonDecode(response.body)['massage']);
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    name = userProvider.user!.name;
+    imgAvt = userProvider.user!.imgAvt;
+    checkHPBD();
+    checkMemori();
     return Scaffold(
       extendBody: true,
       resizeToAvoidBottomInset: false,
@@ -56,18 +208,20 @@ class _homeState extends State<home> {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Distribute space evenly
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    // Center vertically
                     children: [
                       Expanded(
-                        flex: 1,
+                        flex: 3,
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: IconButton(
-                            alignment: Alignment.topRight,
+                            alignment: Alignment.centerRight,
                             iconSize: 25,
                             onPressed: () {
                               showSearch(
@@ -79,13 +233,24 @@ class _homeState extends State<home> {
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        child: const CircleAvatar(
-                          backgroundImage: AssetImage('assets/userAvt.png'),
-                          radius: 20,
-                        ),
-                      ),
+                      SizedBox(width: 8), // Add spacing between the two widgets
+                      ClipOval(
+                          child: imgAvt == ""
+                              ? Container(
+                                  width: 40,
+                                  height: 40,
+                                  color: Colors.grey,
+                                  child: Image.asset(
+                                    'assets/userAvt.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Image.file(
+                                  File(imgAvt),
+                                  fit: BoxFit.cover,
+                                  width: 40,
+                                  height: 40,
+                                ))
                     ],
                   ),
                   Container(
@@ -122,28 +287,28 @@ class _homeState extends State<home> {
                                 "$date,",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: 25,
                                 ),
                               ),
                               Text(
                                 "$day,",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: 25,
                                 ),
                               ),
                               Text(
                                 "$month,",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: 25,
                                 ),
                               ),
                               Text(
                                 year,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: 25,
                                 ),
                               ),
                             ],
@@ -179,7 +344,7 @@ class _homeState extends State<home> {
                                   text: "Monthly Diary",
                                   width: 100,
                                   height: 120,
-                                  onPress: write,
+                                  onPress: monthdiary,
                                   width_img: 50,
                                   height_img: 50,
                                 ),
@@ -195,8 +360,8 @@ class _homeState extends State<home> {
                                 url: "assets/view.svg",
                                 text: "View Diary",
                                 width: 100,
-                                height: 100,
-                                onPress: write,
+                                height: 120,
+                                onPress: view,
                                 width_img: 40,
                                 height_img: 40,
                               ),
@@ -207,7 +372,7 @@ class _homeState extends State<home> {
                                   text: "Favorite Diary",
                                   width: 100,
                                   height: 130,
-                                  onPress: write,
+                                  onPress: favorite,
                                   width_img: 50,
                                   height_img: 50,
                                 ),

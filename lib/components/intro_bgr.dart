@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+
 class bgr_intro extends StatelessWidget {
   final String text;
 
@@ -11,11 +12,12 @@ class bgr_intro extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        SvgPicture.asset(
-          "assets/start.svg",
-          alignment: Alignment.center,
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+        Container(
+          constraints: BoxConstraints.expand(),
+          child: SvgPicture.asset(
+            "assets/start.svg",
+            fit: BoxFit.fill,
+          ),
         ),
         Container(
           margin: const EdgeInsets.only(top: 30),

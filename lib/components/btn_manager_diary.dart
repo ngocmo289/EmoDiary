@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 const Color nau = Color(0xffdeb887);
-
+const Color nau2 = Color(0xfff5deb3);
 class btnManagerDiary extends StatelessWidget {
   const btnManagerDiary({super.key, required this.url, required this.text, required this.width, required this.height, required this.onPress, required this.width_img, required this.height_img});
   final double width;

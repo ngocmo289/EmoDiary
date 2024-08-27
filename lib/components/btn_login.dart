@@ -1,13 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Color bgr = const Color(0xff2c2c2c);
+const Color bgr =  Color(0xff2c2c2c);
 class btn_login extends StatelessWidget {
-  const btn_login({super.key, required this.text, required this.onPress});
+  final Color color;
 
   final String text;
 
   final Function()? onPress;
+
+  const btn_login({
+    Key? key,
+    required this.text,
+    required this.onPress,
+    this.color = bgr,
+  }) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +23,7 @@ class btn_login extends StatelessWidget {
       onPressed: onPress,
       style: ElevatedButton.styleFrom(
         elevation: 0,
-        backgroundColor: bgr,
+        backgroundColor: color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),

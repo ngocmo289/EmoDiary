@@ -6,15 +6,12 @@ class bgr_after extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Image(
-          image: const AssetImage("assets/bgr_after.png"),
-          alignment: Alignment.center,
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-        ),
-      ],
+    return Container(
+      constraints: BoxConstraints.expand(),
+      child: Image(
+        image: const AssetImage("assets/bgr_after.png"),
+        fit: BoxFit.fill,
+      ),
     );
   }
 }
